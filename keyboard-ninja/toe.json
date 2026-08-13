@@ -1,0 +1,6 @@
+{
+  "name": "keyboard-ninja",
+  "version": "0.1.0",
+  "description": "Vim-style navigation: j/k to scroll, gg/G to jump, g to toggle. HANDS OFF THE MOUSE.",
+  "entry": "toe.py"
+}
