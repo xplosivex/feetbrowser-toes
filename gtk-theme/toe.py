@@ -11,12 +11,19 @@ def activate(ctx):
     if sys.platform != "linux":
         return
     ctx.on("extra_css", extra_css)
+    ctx.on("on_load", on_load)
+
+def on_load(url, body):
+    if str(url) == "about:blank" and body:
+        link = '<li><a href="file:///home/arglinux/test-gtk.html">GTK Theme Tester</a> &mdash; verify your forms and scrollbars match your Linux desktop!</li>'
+        return body.replace('</ul>', f'  {link}\n      </ul>')
+    return None
 
 def extra_css(url):
     return GTK_CSS
 
 GTK_CSS = """
-/* Adwaita/GTK-like basic styling for web elements */
+/* Adwaita/GTK-like advanced styling for web elements */
 button, input[type="button"], input[type="submit"], input[type="reset"] {
     background: linear-gradient(to bottom, #f6f5f4, #edebe9) !important;
     color: #2e3436 !important;
@@ -28,14 +35,7 @@ button, input[type="button"], input[type="submit"], input[type="reset"] {
     cursor: default !important;
 }
 
-button:hover, input[type="button"]:hover, input[type="submit"]:hover {
-    background: linear-gradient(to bottom, #ffffff, #f6f5f4) !important;
-}
 
-button:active, input[type="button"]:active, input[type="submit"]:active {
-    background: #d6d1ce !important;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
-}
 
 input[type="text"], input[type="password"], input[type="email"], input[type="search"], textarea, select {
     background-color: #ffffff !important;
@@ -46,11 +46,7 @@ input[type="text"], input[type="password"], input[type="email"], input[type="sea
     font-family: system-ui, sans-serif !important;
 }
 
-input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
-    border-color: #3584e4 !important;
-    outline: 1px solid #3584e4 !important;
-    box-shadow: 0 0 0 2px rgba(53, 132, 228, 0.3) !important;
-}
+
 
 /* Scrollbars - if supported by the engine */
 ::-webkit-scrollbar {
@@ -69,4 +65,46 @@ input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:f
 ::-webkit-scrollbar-thumb:hover {
     background-color: #9a9996;
 }
+"""
+
+GTK_TEST_HTML = """<!DOCTYPE html>
+<html>
+<head>
+    <title>GTK Theme Test</title>
+</head>
+<body style="padding: 20px; font-family: sans-serif;">
+    <h1>Testing GTK Theme Toe</h1>
+    <p>This is a simple test page with standard HTML form elements.</p>
+    
+    <div style="margin-bottom: 15px;">
+        <label>Text Input:</label><br>
+        <input type="text" placeholder="Type something here...">
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+        <label>Select Dropdown:</label><br>
+        <select>
+            <option>Option 1</option>
+            <option>Option 2</option>
+            <option>Option 3</option>
+        </select>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+        <label>Buttons:</label><br>
+        <button>Standard Button</button>
+        <input type="submit" value="Submit Input">
+        <input type="button" value="Normal Input">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label>Textarea:</label><br>
+        <textarea rows="4" cols="30">Scrollbars might appear here if you type a lot!</textarea>
+    </div>
+
+    <div style="height: 2000px; padding-top: 50px;">
+        <p><i>(Scroll down to see the styled GTK Adwaita scrollbar in action!)</i></p>
+    </div>
+</body>
+</html>
 """
