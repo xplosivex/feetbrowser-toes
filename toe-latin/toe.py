@@ -9,14 +9,31 @@ renders and links still work.
 
 import re
 
+from feetbrowser import toes
+
 _VOWELS = "aeiouAEIOU"
 
 
 def activate(ctx):
+    ctx.define_config(
+        toes.ConfigOption("enabled", "Toe-Latin", "bool", default=True,
+                          help="Translate page text to Pig Latin."),
+        toes.ConfigOption("dialect", "Dialect", "choice", default="latin",
+                          options=[("latin", "Pig Latin"),
+                                   ("uay", "Ubbi Dubbi")],
+                          help="Which fake language to use."),
+    )
+    _CONFIG["enabled"] = ctx.config_value("enabled")
+    _CONFIG["dialect"] = ctx.config_value("dialect")
     ctx.on("on_load", on_load)
 
 
+_CONFIG = {"enabled": True, "dialect": "latin"}
+
+
 def on_load(url, body):
+    if not _CONFIG.get("enabled", True):
+        return None
     return _pig_latin_html(body)
 
 
@@ -67,7 +84,12 @@ def _pig_words(text):
 
 def _translate(word):
     low = word.lower()
-    if low[0] in _VOWELS:
+    if _CONFIG.get("dialect") == "uay":
+        # Ubbi Dubbi: insert "ub" before each vowel sound.
+        result = ""
+        for ch in low:
+            result += "ub" + ch if ch in _VOWELS else ch
+    elif low[0] in _VOWELS:
         result = low + "yay"
     else:
         idx = 1

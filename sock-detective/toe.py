@@ -50,12 +50,30 @@ _STATIC_REPORTS = {
 
 
 def activate(ctx):
+    ctx.define_config(
+        toes.ConfigOption("sniff_color", "Sniff box color", "str",
+                          default="red",
+                          help="Outline color of the hover crime-scene "
+                               "box."),
+        toes.ConfigOption("log_depth", "Paper trail size", "int",
+                          default=200,
+                          help="How many navigations to remember."),
+        toes.ConfigOption("sniff_on", "Sniff mode on startup", "bool",
+                          default=False,
+                          help="Start with sniff mode enabled."),
+    )
+    _CONFIG["sniff_color"] = ctx.config_value("sniff_color")
+    _CONFIG["log_depth"] = ctx.config_value("log_depth")
+    ctx.sniffing = bool(ctx.config_value("sniff_on"))
     ctx.on("buttons", lambda: [toes.ButtonDef("sock", "sock", "🕵")])
     ctx.on("on_click", lambda btn_id: _click(ctx, btn_id))
     ctx.on("on_motion", lambda x, y: _motion(ctx, x, y))
     ctx.on("on_keypress", lambda e: _key(ctx, e))
     ctx.on("on_draw", lambda canvas, offset: _overlay(ctx, canvas, offset))
     ctx.on("handle", lambda url, tab: _handle(ctx, url, tab))
+
+
+_CONFIG = {"sniff_color": "red", "log_depth": 200}
 
 
 # -- sniff mode ----------------------------------------------------------
@@ -103,7 +121,7 @@ def _motion(ctx, x, y):
 
 
 def _overlay(ctx, canvas, offset):
-    """Draw the red crime-scene box around the hovered element."""
+    """Draw the crime-scene box around the hovered element."""
     if not getattr(ctx, "sniffing", False):
         return
     tab = ctx.current_tab()
@@ -111,13 +129,14 @@ def _overlay(ctx, canvas, offset):
     node = getattr(ctx, "hover_node", None)
     if not tab or box is None or node is None:
         return
+    color = _CONFIG.get("sniff_color", "red")
     top = box.y - tab.scroll + offset
     canvas.create_rectangle(box.x, top, box.x + box.width, top + box.height,
-                            outline="red", width=2)
+                            outline=color, width=2)
     label = _tag(node)
     font = get_font(10, "bold", "roman", "Helvetica")
     canvas.create_rectangle(box.x, top - 14, box.x + font.measure(label) + 4,
-                            top, fill="red", outline="red")
+                            top, fill=color, outline=color)
     canvas.create_text(box.x + 2, top - 12, text=label, anchor="w",
                        fill="white", font=font)
 
@@ -177,7 +196,8 @@ def _log(ctx, tab, url, path):
         "path": path,
         "title": getattr(tab, "title", "") or "",
     })
-    ctx.case_log = history[-200:]
+    depth = _CONFIG.get("log_depth", 200)
+    ctx.case_log = history[-depth:]
 
 
 def _page(tab, title, body):

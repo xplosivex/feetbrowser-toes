@@ -26,7 +26,7 @@
     },
     {
       "name": "sock-detective",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "A hard-boiled private investigator for page guts. Toggle sniff mode with the button and hover, or open toe://sock for the full case file.",
       "entry": "toe.py",
       "files": [
@@ -37,7 +37,7 @@
     },
     {
       "name": "toe-bar",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "A wide, cluttered, early-2000s toolbar. Marquee, banner ads, popups, a hit counter, and a web ring. Best viewed in 800x600.",
       "entry": "toe.py",
       "files": [
@@ -48,7 +48,7 @@
     },
     {
       "name": "neo-bar",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "A full toolbar reimplemented as a toe: back, forward, reload, home, bookmark star, address bar, and a visitor counter.",
       "entry": "toe.py",
       "files": [
@@ -70,7 +70,7 @@
     },
     {
       "name": "reader",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Strips a page down to its article text, keeping links and images. Reading, without the clutter.",
       "entry": "toe.py",
       "files": [
@@ -81,7 +81,7 @@
     },
     {
       "name": "session-keeper",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Remembers your open tabs. Restore them from session:// whenever you come back, or clear the memory.",
       "entry": "toe.py",
       "files": [
@@ -92,7 +92,7 @@
     },
     {
       "name": "toe-latin",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Renders every page in Pig Latin. Educational AND unhinged.",
       "entry": "toe.py",
       "files": [

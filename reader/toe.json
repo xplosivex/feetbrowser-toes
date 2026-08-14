@@ -1,6 +1,6 @@
 {
   "name": "reader",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Strips a page down to its article text, keeping links and images. Reading, without the clutter.",
   "entry": "toe.py"
 }

@@ -32,26 +32,47 @@ blockquote { border-left: 3px solid #ccc; margin-left: 0; padding-left: 16px; }
 _KEEP_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "blockquote",
               "a", "img", "ul", "ol", "br", "em", "strong", "b", "i", "code"}
 
+# Module-level mirror of the config so on_load/extra_css (no ctx) can read
+# the current values.
+_ENABLED = [False]
+_CONFIG = {"enabled": False, "min_words": 40, "keep_images": True,
+           "theme": "light"}
+
 
 def activate(ctx):
-    ctx.settings.setdefault("enabled", True)
-    _ENABLED[0] = bool(ctx.settings["enabled"])
-    ctx.save_settings()
+    ctx.define_config(
+        toes.ConfigOption("enabled", "Reader mode", "bool", default=False,
+                          help="Strip pages down to their article text."),
+        toes.ConfigOption("min_words", "Minimum words", "int", default=40,
+                          help="Pages with fewer article words are left "
+                               "untouched."),
+        toes.ConfigOption("keep_images", "Keep images", "bool", default=True,
+                          help="Preserve <img> tags in the reader view."),
+        toes.ConfigOption("theme", "Theme", "choice", default="light",
+                          options=[("light", "Light"),
+                                   ("sepia", "Sepia"),
+                                   ("dark", "Dark")],
+                          help="Reading background tone."),
+    )
+    _sync_config(ctx)
+    _ENABLED[0] = bool(_CONFIG.get("enabled", False))
     ctx.on("buttons", lambda: [toes.ButtonDef("reader", "R", "Reader")])
     ctx.on("on_click", lambda btn_id: _toggle(ctx, btn_id))
     ctx.on("on_load", on_load)
     ctx.on("extra_css", extra_css)
 
 
-_ENABLED = [True]
+def _sync_config(ctx):
+    for key, opt in ctx.config_options():
+        _CONFIG[key] = ctx.config_value(key)
 
 
 def _toggle(ctx, btn_id):
     if btn_id != "reader":
         return
-    ctx.settings["enabled"] = not ctx.settings.get("enabled", True)
-    _ENABLED[0] = bool(ctx.settings["enabled"])
-    ctx.save_settings()
+    _ENABLED[0] = not _CONFIG.get("enabled", False)
+    ctx.set_config("enabled", _ENABLED[0])
+    _sync_config(ctx)
     ctx.set_status("Reader mode is ON. Clutter, begone!"
                    if _ENABLED[0] else "Reader mode is OFF.")
     tab = ctx.current_tab()
@@ -66,8 +87,17 @@ def on_load(url, body):
     return _extract(body, base)
 
 
+THEMES = {
+    "light": "body { background:#fff; color:#222; }",
+    "sepia": "body { background:#fdf6e3; color:#3e3e3e; }",
+    "dark": ("body { background:#1e1e1e; color:#d0d0d0; } "
+             "a { color:#7aa2f7; }"),
+}
+
+
 def extra_css(url):
-    return READER_CSS
+    theme_css = THEMES.get(_CONFIG.get("theme", "light"), THEMES["light"])
+    return READER_CSS + "\n" + theme_css
 
 
 def _extract(body, base=""):
@@ -97,6 +127,13 @@ def _extract(body, base=""):
     if not parts:
         return body  # Nothing article-like; leave the page alone.
 
+    # Respect the minimum-word threshold.
+    text_words = len(re.findall(r"[A-Za-z0-9]+",
+                                _html.unescape(re.sub(r"<[^>]+>", "",
+                                                      "".join(parts)))))
+    if text_words < _CONFIG.get("min_words", 40):
+        return body  # Too short to be an article; leave the page alone.
+
     # Deduplicate: the regex above already consumed inner tags, so re-joining
     # with the block tags is fine. Wrap in a clean document.
     return ("<!doctype html><html><head><title>" + _html.escape(title_text) +
@@ -125,7 +162,9 @@ def _clean_tags(body, base):
                 i += 1
                 continue
             tag = m.group(1).lower()
-            if tag in ("a", "img"):
+            if tag == "img" and not _CONFIG.get("keep_images", True):
+                pass  # drop images when configured off
+            elif tag in ("a", "img"):
                 # Preserve with attributes.
                 attrs = _attrs(raw_tag, base)
                 if tag == "a" and "href" in attrs:

@@ -1,6 +1,6 @@
 {
   "name": "neo-bar",
-  "version": "0.1.0",
-  "description": "A reimplementation of the browser toolbar as a toe: back, forward, reload, home, bookmark star, address bar, and a live hit counter — all drawn on a chrome band.",
+  "version": "0.2.0",
+  "description": "A reimplementation of the browser toolbar as a toe: back, forward, reload, home, bookmark star, address bar, and a live hit counter \u2014 all drawn on a chrome band.",
   "entry": "toe.py"
 }

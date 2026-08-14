@@ -49,7 +49,27 @@ BAND_STYLE = """
 
 
 def activate(ctx):
-    ctx.on("chrome_bands", lambda: [(BAR_ID, BAND_HEIGHT)])
+    ctx.define_config(
+        toes.ConfigOption("show", "Show the bar", "bool", default=True,
+                          help="Draw the neo-bar band."),
+        toes.ConfigOption("height", "Band height (px)", "int", default=34,
+                          help="Height of the toolbar band."),
+        toes.ConfigOption("accent", "Accent color", "str",
+                          default="#1a73e8",
+                          help="Color for the bookmark star and focused "
+                               "address bar."),
+        toes.ConfigOption("counter_label", "Counter label", "str",
+                          default="VISITOR",
+                          help="Text before the counter number."),
+        toes.ConfigOption("track_visitors", "Count visitors", "bool",
+                          default=True,
+                          help="Increment the visitor counter on each new "
+                               "tab."),
+    )
+    _CONFIG["height"] = ctx.config_value("height")
+    _CONFIG["accent"] = ctx.config_value("accent")
+    _CONFIG["counter_label"] = ctx.config_value("counter_label")
+    ctx.on("chrome_bands", lambda: [(BAR_ID, _CONFIG.get("height", 34))])
     ctx.on("on_chrome_draw", lambda canvas, bands: _draw(ctx, canvas, bands))
     ctx.on("on_chrome_click", lambda x, y, bands: _click(ctx, x, y, bands))
     ctx.on("buttons", lambda: [toes.ButtonDef("neobar", "NB", "Neo-Bar")])
@@ -62,15 +82,21 @@ def activate(ctx):
     ctx.save_settings()
 
 
+_CONFIG = {"height": 34, "accent": "#1a73e8", "counter_label": "VISITOR"}
+
+
 # -- drawing --------------------------------------------------------------
 
 
 def _draw(ctx, canvas, bands):
+    if not ctx.config_value("show"):
+        return
     band = next((b for b in bands if b[0] == BAR_ID), None)
     if band is None:
         return
     _id, height, y = band
     w = canvas.winfo_width()
+    accent = _CONFIG.get("accent", "#1a73e8")
 
     # Band chrome: a flat, modern strip (unlike the 2003 toe-bar).
     canvas.create_rectangle(0, y, w, y + height, fill="#e8e8e8", width=0)
@@ -88,7 +114,7 @@ def _draw(ctx, canvas, bands):
             marked = _is_bookmarked(ctx, tab)
             canvas.create_text(bx + bw // 2, y + height // 2,
                                text="★" if marked else "☆",
-                               fill="#1a73e8" if marked else "#bbb",
+                               fill=accent if marked else "#bbb",
                                font=get_font(11, "bold", "roman",
                                              "Helvetica"))
 
@@ -99,7 +125,7 @@ def _draw(ctx, canvas, bands):
     else:
         ADDR_W2 = ADDR_W
     canvas.create_rectangle(addr_x, y + 3, addr_x + ADDR_W2, y + height - 3,
-                            outline="#3b82f6" if ctx.settings.get(
+                            outline=accent if ctx.settings.get(
                                 "address_focus") else "#999",
                             fill="white",
                             width=2 if ctx.settings.get("address_focus") else 1)
@@ -113,11 +139,12 @@ def _draw(ctx, canvas, bands):
 
     # Hit counter.
     n = ctx.settings.get("visitor", 0)
+    label = _CONFIG.get("counter_label", "VISITOR")
     cx = addr_x + ADDR_W2 + 8
     canvas.create_rectangle(cx, y + 3, cx + COUNTER_W, y + height - 3,
                             outline="#999", fill="#f4f4f4", width=1)
     canvas.create_text(cx + COUNTER_W // 2, y + height // 2,
-                       text=f"VISITOR #{n:06d}",
+                       text=f"{label} #{n:06d}",
                        font=get_font(9, "bold", "roman", "Helvetica"),
                        fill="#333")
 
@@ -268,5 +295,6 @@ def _neo_page(ctx):
 
 
 def _tick_visitor(ctx):
-    ctx.settings["visitor"] = ctx.settings.get("visitor", 0) + 1
-    ctx.save_settings()
+    if ctx.config_value("track_visitors"):
+        ctx.settings["visitor"] = ctx.settings.get("visitor", 0) + 1
+        ctx.save_settings()

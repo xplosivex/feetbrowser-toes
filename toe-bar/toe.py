@@ -45,6 +45,19 @@ SETTINGS_STYLE = """
 
 
 def activate(ctx):
+    ctx.define_config(
+        toes.ConfigOption("bar_on", "Show the bar", "bool", default=True,
+                          help="Draw the 2003 toolbar band."),
+        toes.ConfigOption("popup_blocker", "Popup blocker", "bool",
+                          default=False,
+                          help="Block popup windows (not very 2003)."),
+        toes.ConfigOption("popup_every", "Popup frequency", "int",
+                          default=10,
+                          help="Open 'You've got toes!' every N "
+                               "navigations."),
+        toes.ConfigOption("ads", "Banner ads", "bool", default=True,
+                          help="Rotate banner ads on the band."),
+    )
     ctx.on("chrome_bands", lambda: [(BAR_ID, BAND_HEIGHT)])
     ctx.on("on_chrome_draw", lambda canvas, bands: _draw_band(ctx, canvas, bands))
     ctx.on("on_chrome_click", lambda x, y, bands: _band_click(ctx, x, y, bands))
@@ -106,7 +119,8 @@ def _draw_band(ctx, canvas, bands):
         elif name == "marquee":
             _marquee(canvas, x0, y, x1 - x0, ctx)
         elif name == "banner":
-            _banner(canvas, x0, y, x1 - x0, ctx)
+            if ctx.config_value("ads"):
+                _banner(canvas, x0, y, x1 - x0, ctx)
         elif name == "counter":
             _hit_counter(canvas, x0, y, x1 - x0, ctx)
         elif name == "ring":
@@ -203,7 +217,8 @@ def _band_click(ctx, x, y, bands):
             if name == "toggle":
                 _toggle_band(ctx)
             elif name == "banner":
-                _spawn_ad(ctx)
+                if ctx.config_value("ads"):
+                    _spawn_ad(ctx)
             elif name == "ring":
                 _ring_hop(ctx)
             return True
@@ -250,8 +265,11 @@ def _maybe_popup(ctx):
         return
     if ctx.settings.get("popup_blocker", False):
         return
+    every = ctx.config_value("popup_every")
+    if not every:
+        return
     ctx.settings["navs_since_popup"] = ctx.settings.get("navs_since_popup", 0) + 1
-    if ctx.settings["navs_since_popup"] >= 10:
+    if ctx.settings["navs_since_popup"] >= every:
         ctx.settings["navs_since_popup"] = 0
         ctx.save_settings()
         ctx.popup("toe://ad/youve-got-toes", 300, 200)

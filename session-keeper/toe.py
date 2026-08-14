@@ -24,9 +24,26 @@ SESSION_STYLE = """
 
 
 def activate(ctx):
+    ctx.define_config(
+        toes.ConfigOption("save_delay", "Save delay (ms)", "int",
+                          default=2000,
+                          help="How often the session snapshot is "
+                               "debounced."),
+        toes.ConfigOption("max_tabs", "Max saved tabs", "int", default=50,
+                          help="Keep at most this many tabs in the "
+                               "session."),
+        toes.ConfigOption("autosave", "Autosave", "bool", default=True,
+                          help="Snapshot tabs automatically."),
+    )
+    _CONFIG["save_delay"] = ctx.config_value("save_delay")
+    _CONFIG["max_tabs"] = ctx.config_value("max_tabs")
+    _CONFIG["autosave"] = ctx.config_value("autosave")
     ctx.on("handle", lambda url, tab: _handle(ctx, url, tab))
     ctx.on("on_new_tab", lambda: _schedule_save(ctx))
     _schedule_save(ctx)
+
+
+_CONFIG = {"save_delay": 2000, "max_tabs": 50, "autosave": True}
 
 
 def _save_path(ctx):
@@ -59,23 +76,27 @@ def _save_session(ctx, tabs):
 
 
 def _schedule_save(ctx):
+    if not _CONFIG.get("autosave", True):
+        return
     if getattr(ctx, "_save_scheduled", False):
         return
     ctx._save_scheduled = True
     browser = ctx.browser
     try:
-        browser.window.after(2000, lambda: _do_save(ctx))
+        browser.window.after(_CONFIG.get("save_delay", 2000),
+                             lambda: _do_save(ctx))
     except Exception:
         pass
 
 
 def _do_save(ctx):
     ctx._save_scheduled = False
+    max_tabs = _CONFIG.get("max_tabs", 50)
     tabs = []
     for tab in ctx.tabs():
         if tab and tab.url and not str(tab.url).startswith(("session://",)):
             tabs.append({"title": tab.title, "url": str(tab.url)})
-    _save_session(ctx, tabs)
+    _save_session(ctx, tabs[-max_tabs:])
 
 
 def _handle(ctx, url, tab):
