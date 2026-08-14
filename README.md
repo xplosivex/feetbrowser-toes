@@ -5,7 +5,8 @@ Toes extension system.
 
 FeetBrowser ships with **no toes by default**. To install some, open the
 browser and navigate to **`toe://hub`** (or `toehub://`) — the ToeHub reads
-this catalog and lets you install and uninstall toes from inside the browser.
+this catalog and lets you install, uninstall, enable, and disable toes from
+inside the browser.
 
 ## Adding a toe
 
@@ -37,15 +38,16 @@ The catalog URL in `index.json` is what the browser's ToeHub fetches; keep
 
 | Toe | Description |
 |-----|-------------|
-| word-count | Counts the words on every page |
-| toe-scheme | Registers the `toe://` scheme (`toe://hello`, `toe://gallery`) |
-| sock-detective | Foot-themed devtools: sniff mode + `toe://sock` case files |
+| word-count | Counts words (skipping scripts), estimates reading time |
+| toe-scheme | Registers an `echo://` custom scheme (`echo://hello`, `echo://links`) |
+| sock-detective | Foot-themed devtools: sniff mode + `toe://sock` case files (`/dom`, `/layout`, `/style`, `/js`, `/toes`, `/cases`, `/errors`) |
 | toe-bar | A 2003-style toolbar: marquee, ads, popups, web ring |
-| dark-mode | A dark theme for every page |
-| reader | Strips pages down to article text |
-| session-keeper | Remembers and restores open tabs via `session://` |
+| neo-bar | A full toolbar reimplemented as a toe: back/forward/reload/home/bookmark/address bar + visitor counter |
+| dark-mode | A dark theme for every page, toggleable |
+| reader | Strips pages down to article text, keeping links and images |
+| session-keeper | Remembers and restores open tabs via `session://`, can forget |
 | toe-latin | Renders every page in Pig Latin |
-| keyboard-ninja | Vim-style `j`/`k`/`gg`/`G` scrolling |
+| keyboard-ninja | Vim-style `j`/`k`/`h`/`l`/`d`/`u`/`gg`/`G` scrolling |
 
 ## Installing manually
 

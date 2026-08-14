@@ -1,6 +1,6 @@
 {
   "name": "toe-scheme",
-  "version": "0.1.0",
-  "description": "Registers the toe:// scheme. toe://hello says hi; toe://gallery lists every installed toe.",
+  "version": "0.2.0",
+  "description": "Registers an echo:// custom scheme. echo://hello says hi; echo://gallery lists every installed toe.",
   "entry": "toe.py"
 }

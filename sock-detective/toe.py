@@ -12,6 +12,7 @@ A hard-boiled private investigator for page guts. Two modes of operation:
       toe://sock/layout  THE BONES    — every layout box with geometry
       toe://sock/style   FIBERS       — computed styles per element
       toe://sock/js      THE SCRIPTURES — the JavaScript console
+      toe://sock/toes    THE FEET     — installed toes + enabled/disabled
       toe://sock/cases   PAPER TRAIL  — every navigation it has witnessed
       toe://sock/errors  DISTRESS     — pages that went wrong
       toe://sock/help    where to look
@@ -43,6 +44,7 @@ _STATIC_REPORTS = {
     "layout": "THE BONES",
     "style": "FIBERS",
     "js": "THE SCRIPTURES",
+    "toes": "THE FEET",
     "help": "WHERE TO LOOK",
 }
 
@@ -163,7 +165,7 @@ def _handle(ctx, url, tab):
     if name in _STATIC_REPORTS:
         body = {"dom": _dom_report, "layout": _layout_report,
                 "style": _style_report, "js": _js_report,
-                "help": _help}[name](ctx, tab)
+                "toes": _toes_report, "help": _help}[name](ctx, tab)
         return {}, _page(tab, _STATIC_REPORTS[name], body), "text/html"
     return {}, _page(tab, "NO SUCH CASE", _not_found(path)), "text/html"
 
@@ -191,6 +193,7 @@ def _page(tab, title, body):
 <a href="toe://sock/layout">bones</a> ·
 <a href="toe://sock/style">fibers</a> ·
 <a href="toe://sock/js">scriptures</a> ·
+<a href="toe://sock/toes">the feet</a> ·
 <a href="toe://sock/cases">paper trail</a> ·
 <a href="toe://sock/errors">distress</a> ·
 <a href="toe://sock/help">help</a></p>
@@ -302,6 +305,26 @@ def _js_report(ctx, tab):
     return "\n".join(rows)
 
 
+def _toes_report(ctx, tab):
+    """The Feet: every installed toe and its enabled/disabled state."""
+    from feetbrowser import toes as _toes_mod
+    installed = _toes_mod.discover_toes()
+    if not installed:
+        return ("<div class='box'>No toes are installed. The browser is "
+                "barefoot. Visit <a href='toe://hub'>the hub</a> to grow "
+                "some feet.</div>")
+    disabled = _toes_mod.disabled_toes()
+    rows = []
+    for toe in installed:
+        state = "DISABLED" if toe.name in disabled else "ENABLED"
+        cls = "alert" if toe.name in disabled else "box"
+        rows.append(
+            f'<div class="{cls}"><b>{_html.escape(toe.name)}</b> '
+            f'v{toe.version} — <span class="v">{state}</span><br>'
+            f'{_html.escape(toe.description or "")}</div>')
+    return "\n".join(rows)
+
+
 def _cases(ctx):
     log = getattr(ctx, "case_log", [])
     if not log:
@@ -342,6 +365,7 @@ bar. Esc exits.</div>
 <a href="toe://sock/layout">/layout</a> — layout boxes ·
 <a href="toe://sock/style">/style</a> — computed styles ·
 <a href="toe://sock/js">/js</a> — the JavaScript console ·
+<a href="toe://sock/toes">/toes</a> — installed toes ·
 <a href="toe://sock/cases">/cases</a> — the paper trail ·
 <a href="toe://sock/errors">/errors</a> — pages in distress.</div>
 <div class="box"><b>Why "sock"?</b> The page is the sock. The detective

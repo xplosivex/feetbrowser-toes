@@ -1,6 +1,6 @@
 {
   "name": "session-keeper",
-  "version": "0.1.0",
-  "description": "Remembers your open tabs. Restore them from session:// whenever you come back.",
+  "version": "0.2.0",
+  "description": "Remembers your open tabs. Restore them from session:// whenever you come back, or clear the memory.",
   "entry": "toe.py"
 }

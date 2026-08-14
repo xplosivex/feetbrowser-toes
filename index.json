@@ -4,50 +4,57 @@
   "toes": [
     {
       "name": "word-count",
-      "version": "0.1.0",
-      "description": "Counts the words on every page and adds a little status line.",
+      "version": "0.2.0",
+      "description": "Counts the words on every page (skipping scripts and styles) and adds a little status line with an estimated reading time.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
     {
       "name": "toe-scheme",
-      "version": "0.1.0",
-      "description": "Registers the toe:// scheme. toe://hello says hi; toe://gallery lists every installed toe.",
+      "version": "0.2.0",
+      "description": "Registers an echo:// custom scheme. echo://hello says hi; echo://gallery lists every installed toe.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
     {
       "name": "sock-detective",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "A hard-boiled private investigator for page guts. Toggle sniff mode with the button and hover, or open toe://sock for the full case file.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
     {
       "name": "toe-bar",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "A wide, cluttered, early-2000s toolbar. Marquee, banner ads, popups, a hit counter, and a web ring. Best viewed in 800x600.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
     {
-      "name": "dark-mode",
+      "name": "neo-bar",
       "version": "0.1.0",
-      "description": "Skims every page with a dark theme. Your eyes will thank the toe.",
+      "description": "A full toolbar reimplemented as a toe: back, forward, reload, home, bookmark star, address bar, and a visitor counter.",
+      "entry": "toe.py",
+      "files": ["toe.json", "toe.py"]
+    },
+    {
+      "name": "dark-mode",
+      "version": "0.2.0",
+      "description": "Skims every page with a dark theme. Your eyes will thank the toe. Toggle with the toolbar button.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
     {
       "name": "reader",
-      "version": "0.1.0",
-      "description": "Strips a page down to its article text. Reading, without the clutter.",
+      "version": "0.2.0",
+      "description": "Strips a page down to its article text, keeping links and images. Reading, without the clutter.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
     {
       "name": "session-keeper",
-      "version": "0.1.0",
-      "description": "Remembers your open tabs. Restore them from session:// whenever you come back.",
+      "version": "0.2.0",
+      "description": "Remembers your open tabs. Restore them from session:// whenever you come back, or clear the memory.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     },
@@ -60,8 +67,8 @@
     },
     {
       "name": "keyboard-ninja",
-      "version": "0.1.0",
-      "description": "Vim-style navigation: j/k to scroll, gg/G to jump. HANDS OFF THE MOUSE.",
+      "version": "0.2.0",
+      "description": "Vim-style navigation: j/k scroll, h/l jump, d/u half-page, gg/G to top/bottom, g toggles ninja mode. HANDS OFF THE MOUSE.",
       "entry": "toe.py",
       "files": ["toe.json", "toe.py"]
     }

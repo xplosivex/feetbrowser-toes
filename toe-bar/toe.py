@@ -65,6 +65,28 @@ def activate(ctx):
 # -- the band -------------------------------------------------------------
 
 
+def _band_geometry():
+    """Compute the x-placement of every band element, in order, so drawing
+    and hit-testing never drift apart."""
+    regions = []
+    x = 4
+    # TOE BAR toggle button.
+    regions.append(("toggle", x, x + 64))
+    x += 64 + 4
+    # Marquee.
+    regions.append(("marquee", x, x + 300))
+    x += 300 + 4
+    # Banner ad.
+    regions.append(("banner", x, x + 240))
+    x += 240 + 4
+    # Hit counter.
+    regions.append(("counter", x, x + 150))
+    x += 150 + 4
+    # Web ring.
+    regions.append(("ring", x, x + 180))
+    return regions
+
+
 def _draw_band(ctx, canvas, bands):
     if not ctx.settings.get("bar_on", True):
         return
@@ -78,20 +100,20 @@ def _draw_band(ctx, canvas, bands):
     canvas.create_line(0, y, w, y, fill="#ffffff")
     canvas.create_line(0, y + height - 1, w, y + height - 1, fill="#808080")
 
-    x = 4
-    # TOE BAR toggle button.
-    x = _bevel_button(canvas, x, y, 64, "TOE BAR", _toggle_band, ctx)
-    # Marquee.
-    x = _marquee(canvas, x, y, ctx)
-    # Banner ad.
-    x = _banner(canvas, x, y, ctx)
-    # Hit counter.
-    x = _hit_counter(canvas, x, y, ctx)
-    # Web ring.
-    _web_ring(canvas, x, y, ctx)
+    for name, x0, x1 in _band_geometry():
+        if name == "toggle":
+            _bevel_button(canvas, x0, y, x1 - x0, "TOE BAR")
+        elif name == "marquee":
+            _marquee(canvas, x0, y, x1 - x0, ctx)
+        elif name == "banner":
+            _banner(canvas, x0, y, x1 - x0, ctx)
+        elif name == "counter":
+            _hit_counter(canvas, x0, y, x1 - x0, ctx)
+        elif name == "ring":
+            _web_ring(canvas, x0, y, x1 - x0, ctx)
 
 
-def _bevel_button(canvas, x, y, w, label, action, ctx):
+def _bevel_button(canvas, x, y, w, label):
     h = BAND_HEIGHT - 6
     canvas.create_rectangle(x, y + 2, x + w, y + 2 + h,
                             fill="#d4d0c8", outline="#000")
@@ -102,11 +124,9 @@ def _bevel_button(canvas, x, y, w, label, action, ctx):
     canvas.create_text(x + w // 2, y + 2 + h // 2, text=label,
                        font=get_font(9, "bold", "roman", "Helvetica"),
                        fill="#000")
-    return x + w + 4
 
 
-def _marquee(canvas, x, y, ctx):
-    w = 300
+def _marquee(canvas, x, y, w, ctx):
     canvas.create_rectangle(x, y + 2, x + w, y + BAND_HEIGHT - 2,
                             fill="#000000", outline="#000")
     pos = ctx.settings.get("marquee_pos", 0)
@@ -116,36 +136,32 @@ def _marquee(canvas, x, y, ctx):
                                                  "Helvetica"), fill="#00ff00")
     ctx.settings["marquee_pos"] = (pos + 1) % (len(MARQUEE) * 2)
     _schedule_redraw(ctx)
-    return x + w + 4
 
 
-def _banner(canvas, x, y, ctx):
-    w = 240
+def _banner(canvas, x, y, w, ctx):
     label, _n = ADS[ctx.settings.get("ad_index", 0) % len(ADS)]
     canvas.create_rectangle(x, y + 2, x + w, y + BAND_HEIGHT - 2,
                             fill="#ffff00", outline="#000")
     canvas.create_text(x + w // 2, y + BAND_HEIGHT // 2, text=label,
                        font=get_font(9, "bold", "roman", "Helvetica"),
                        fill="#000")
-    return x + w + 4
 
 
-def _hit_counter(canvas, x, y, ctx):
+def _hit_counter(canvas, x, y, w, ctx):
     n = ctx.settings.get("visitor", 0)
     label = f"YOU ARE VISITOR #{n:06d}"
-    canvas.create_rectangle(x, y + 2, x + 150, y + BAND_HEIGHT - 2,
+    canvas.create_rectangle(x, y + 2, x + w, y + BAND_HEIGHT - 2,
                             fill="#000000", outline="#000")
-    canvas.create_text(x + 75, y + BAND_HEIGHT // 2, text=label,
+    canvas.create_text(x + w // 2, y + BAND_HEIGHT // 2, text=label,
                        font=get_font(9, "normal", "roman", "Helvetica"),
                        fill="#00ff00")
-    return x + 154
 
 
-def _web_ring(canvas, x, y, ctx):
+def _web_ring(canvas, x, y, w, ctx):
     label = "← PREV | TOE RING | NEXT →"
-    canvas.create_rectangle(x, y + 2, x + 180, y + BAND_HEIGHT - 2,
+    canvas.create_rectangle(x, y + 2, x + w, y + BAND_HEIGHT - 2,
                             fill="#d4d0c8", outline="#000")
-    canvas.create_text(x + 90, y + BAND_HEIGHT // 2, text=label,
+    canvas.create_text(x + w // 2, y + BAND_HEIGHT // 2, text=label,
                        font=get_font(9, "bold", "roman", "Helvetica"),
                        fill="#000")
 
@@ -181,18 +197,16 @@ def _band_click(ctx, x, y, bands):
     _id, height, by = band
     if not (by <= y < by + height):
         return False
-    # TOE BAR button.
-    if 4 <= x < 68:
-        _toggle_band(ctx)
-        return True
-    # Banner ad.
-    if 376 <= x < 616:
-        _spawn_ad(ctx)
-        return True
-    # Web ring.
-    if 774 <= x < 954:
-        _ring_hop(ctx)
-        return True
+    # Hit-test against the same geometry used for drawing.
+    for name, x0, x1 in _band_geometry():
+        if x0 <= x < x1:
+            if name == "toggle":
+                _toggle_band(ctx)
+            elif name == "banner":
+                _spawn_ad(ctx)
+            elif name == "ring":
+                _ring_hop(ctx)
+            return True
     return False
 
 

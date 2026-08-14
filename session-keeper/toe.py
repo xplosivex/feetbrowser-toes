@@ -1,8 +1,9 @@
 """session-keeper toe: persist open tabs and restore them later.
 
-Records every tab's title + URL to a JSON file on a timer. `session://`
-serves a page listing the saved tabs with clickable links that reopen them,
-so you can pick up where you left off after a crash or a coffee break.
+Records every tab's title + URL to a JSON file on a timer, and also saves
+when a tab closes. `session://` serves a page listing the saved tabs with
+clickable links that reopen them, so you can pick up where you left off
+after a crash or a coffee break.
 
 Saves are debounced through the browser's `after` loop; the log lives in
 the toe's settings folder.
@@ -18,6 +19,7 @@ SESSION_STYLE = """
   h1 { color: #8b0000; letter-spacing: 2px; }
   .box { border: 1px solid #bbb; background: #fff; padding: 6px 10px; margin: 4px 0; }
   a { color: #8b0000; }
+  .dim { color: #999; }
 """
 
 
@@ -84,8 +86,12 @@ def _handle(ctx, url, tab):
         for saved in _read_session(ctx):
             if saved.get("url") == name or saved.get("title") == name:
                 ctx.open(saved["url"])
-                return {}, "<html><body><p>Restoring…</p></body></html>", "text/html"
-        return {}, "<html><body><p>No such saved tab.</p></body></html>", "text/html"
+                return {}, _msg_page("Restoring…"), "text/html"
+        return {}, _msg_page("No such saved tab."), "text/html"
+    if url.host == "clear":
+        _save_session(ctx, [])
+        return {}, _msg_page("Memory wiped. The session keeper forgets "
+                             "everything."), "text/html"
     # session:// and session://home both list saved tabs.
     saved = _read_session(ctx)
     rows = []
@@ -96,13 +102,23 @@ def _handle(ctx, url, tab):
         rows.append(
             f'<div class="box"><a href="{_esc(entry["url"])}">'
             f'{_esc(entry["title"])}</a>'
-            f' <span style="color:#999">{_esc(entry["url"])}</span></div>')
+            f' <span class="dim">{_esc(entry["url"])}</span></div>')
+    rows.append('<div class="box"><a href="session://clear">forget '
+                'everything</a></div>')
     body = ("<!doctype html><html><head><title>Session</title>"
             f"<style>{SESSION_STYLE}</style></head><body>"
             "<h1>SAVED SESSIONS</h1>"
             + "\n".join(rows) +
             "</body></html>")
     return {}, body, "text/html"
+
+
+def _msg_page(msg):
+    return ("<!doctype html><html><head><title>Session</title>"
+            f"<style>{SESSION_STYLE}</style></head><body><h1>SESSION</h1>"
+            f'<div class="box">{_esc(msg)}</div>'
+            '<div class="box"><a href="session://">back to sessions</a></div>'
+            "</body></html>")
 
 
 def _esc(s):
