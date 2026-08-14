@@ -1,0 +1,11 @@
+{
+  "name": "gtk-theme",
+  "version": "1.0.0",
+  "description": "Injects GTK-like CSS (Adwaita) to style web pages to match your Linux desktop. Only active on Linux.",
+  "entry": "toe.py",
+  "files": [
+    "toe.json",
+    "toe.py",
+    "manual.md"
+  ]
+}
