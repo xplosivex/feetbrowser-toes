@@ -49,6 +49,7 @@ The catalog URL in `index.json` is what the browser's ToeHub fetches; keep
 | toe-latin | Renders every page in Pig Latin |
 | keyboard-ninja | Vim-style `j`/`k`/`h`/`l`/`d`/`u`/`gg`/`G` scrolling |
 | pseudo-toe | Pseudo-site hub: turns GitHub repo links into lightweight scrollable sites via `gh://` |
+| gtk-theme | GTK Adwaita styling for forms, buttons, and scrollbars (Linux only) |
 
 ## Installing manually
 
