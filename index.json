@@ -111,6 +111,17 @@
         "toe.py",
         "manual.md"
       ]
+    },
+    {
+      "name": "pseudo-toe",
+      "version": "0.1.0",
+      "description": "Pseudo-Toe: a pseudo-site hub that turns GitHub repo links into lightweight, scrollable sites rendered by FeetBrowser from the GitHub API. Visit gh://hub.",
+      "entry": "toe.py",
+      "files": [
+        "toe.json",
+        "toe.py",
+        "manual.md"
+      ]
     }
   ]
 }
