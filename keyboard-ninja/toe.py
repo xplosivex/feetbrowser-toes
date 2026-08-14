@@ -17,15 +17,25 @@ Keys while ninja mode is on:
 
 from feetbrowser import toes
 
-STEP = 80
-
 
 def activate(ctx):
-    ctx.settings.setdefault("enabled", False)
-    ctx.save_settings()
+    ctx.define_config(
+        toes.ConfigOption("enabled", "Ninja mode", "bool", default=False,
+                          help="Vim-style keys on by default."),
+        toes.ConfigOption("step", "Scroll step (px)", "int", default=80,
+                          help="Pixels per j/k press."),
+        toes.ConfigOption("half_page", "Half-page step (px)", "int",
+                          default=400,
+                          help="Pixels per d/u press."),
+    )
+    _CONFIG["step"] = ctx.config_value("step")
+    _CONFIG["half_page"] = ctx.config_value("half_page")
     ctx.on("on_keypress", lambda e: _key(ctx, e))
     ctx.on("buttons", lambda: [toes.ButtonDef("ninja", "N", "Ninja")])
     ctx.on("on_click", lambda btn_id: _click(ctx, btn_id))
+
+
+_CONFIG = {"step": 80, "half_page": 400}
 
 
 def _click(ctx, btn_id):
@@ -83,30 +93,30 @@ def _key(ctx, e):
         _status(ctx)
         return True
     if ch == "j":
-        tab.scroll_by(STEP)
+        tab.scroll_by(_CONFIG.get("step", 80))
         ctx.browser.draw()
         _status(ctx)
         return True
     if ch == "k":
-        tab.scroll_by(-STEP)
+        tab.scroll_by(-_CONFIG.get("step", 80))
         ctx.browser.draw()
         _status(ctx)
         return True
     if ch == "h":
-        tab.scroll_by(-STEP // 2)
+        tab.scroll_by(-_CONFIG.get("step", 80) // 2)
         ctx.browser.draw()
         return True
     if ch == "l":
-        tab.scroll_by(STEP // 2)
+        tab.scroll_by(_CONFIG.get("step", 80) // 2)
         ctx.browser.draw()
         return True
     if ch == "d":
-        tab.scroll_by(STEP * 5)
+        tab.scroll_by(_CONFIG.get("half_page", 400))
         ctx.browser.draw()
         _status(ctx)
         return True
     if ch == "u":
-        tab.scroll_by(-STEP * 5)
+        tab.scroll_by(-_CONFIG.get("half_page", 400))
         ctx.browser.draw()
         _status(ctx)
         return True

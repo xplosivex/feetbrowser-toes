@@ -1,6 +1,6 @@
 {
   "name": "word-count",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Counts the words on every page (skipping scripts and styles) and adds a little status line with an estimated reading time.",
   "entry": "toe.py"
 }

@@ -4,7 +4,7 @@
   "toes": [
     {
       "name": "word-count",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Counts the words on every page (skipping scripts and styles) and adds a little status line with an estimated reading time.",
       "entry": "toe.py",
       "files": [
@@ -59,7 +59,7 @@
     },
     {
       "name": "dark-mode",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Skims every page with a dark theme. Your eyes will thank the toe. Toggle with the toolbar button.",
       "entry": "toe.py",
       "files": [
@@ -103,7 +103,7 @@
     },
     {
       "name": "keyboard-ninja",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Vim-style navigation: j/k scroll, h/l jump, d/u half-page, gg/G to top/bottom, g toggles ninja mode. HANDS OFF THE MOUSE.",
       "entry": "toe.py",
       "files": [
