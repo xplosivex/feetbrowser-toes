@@ -1,48 +1,53 @@
 import sys
+import subprocess
+import json
 
-import os
-import re
+_cached_css = None
 
-def get_gtk_color(name, default):
-    try:
-        theme_name = "Breeze"
-        settings_path = os.path.expanduser("~/.config/gtk-3.0/settings.ini")
-        if os.path.exists(settings_path):
-            with open(settings_path, "r") as f:
-                match = re.search(r"gtk-theme-name=(.+)", f.read())
-                if match:
-                    theme_name = match.group(1).strip()
+def get_dynamic_css():
+    global _cached_css
+    if _cached_css is not None:
+        return _cached_css
         
-        colors_path = os.path.expanduser("~/.config/gtk-3.0/colors.css")
-        if os.path.exists(colors_path):
-            with open(colors_path, "r") as f:
-                content = f.read()
-                suffix = theme_name.lower().replace("-", "")
-                match = re.search(fr"@define-color\s+{name}(_{suffix})?\s+(#[0-9a-fA-F]+);", content)
-                if match:
-                    hex_val = match.group(2).lstrip('#')
-                    r, g, b = tuple(int(hex_val[i:i+2], 16) for i in (0, 2, 4))
-                    return f"rgb({r}, {g}, {b})"
-                    
-        import gi
-        gi.require_version('Gtk', '3.0')
-        from gi.repository import Gtk
-        success, color = Gtk.StyleContext().lookup_color(name)
+    script = """
+import json
+try:
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk
+    Gtk.init(None)
+    ctx = Gtk.StyleContext()
+    
+    def get_color(name, default):
+        success, color = ctx.lookup_color(name)
         if success:
             return f"rgb({int(color.red*255)}, {int(color.green*255)}, {int(color.blue*255)})"
-            
+        return default
+        
+    colors = {
+        "bg": get_color("theme_bg_color", "#f6f5f4"),
+        "fg": get_color("theme_fg_color", "#000000"),
+        "base": get_color("theme_base_color", "#ffffff"),
+        "text": get_color("theme_text_color", "#000000"),
+        "border": get_color("borders", "#cdc7c2"),
+    }
+    print(json.dumps(colors))
+except Exception:
+    print("{}")
+"""
+    try:
+        output = subprocess.check_output(["python3", "-c", script], text=True, stderr=subprocess.DEVNULL)
+        colors = json.loads(output.strip())
     except Exception:
-        pass
-    return default
+        colors = {}
 
-def generate_css():
-    bg = get_gtk_color("theme_bg_color", "#f6f5f4")
-    fg = get_gtk_color("theme_fg_color", "#000000")
-    base = get_gtk_color("theme_base_color", "#ffffff")
-    text = get_gtk_color("theme_text_color", "#000000")
-    border = get_gtk_color("borders", "#cdc7c2")
+    bg = colors.get("bg", "#f6f5f4")
+    fg = colors.get("fg", "#000000")
+    base = colors.get("base", "#ffffff")
+    text = colors.get("text", "#000000")
+    border = colors.get("border", "#cdc7c2")
     
-    return f"""
+    _cached_css = f"""
 button, input[type="button"], input[type="submit"] {{
     background: {bg} !important;
     color: {fg} !important;
@@ -74,6 +79,8 @@ input[type="text"], input[type="password"], textarea, select {{
     border: 3px solid {base};
 }}
 """
+    return _cached_css
+
 
 def activate(ctx):
     if sys.platform != "linux":
@@ -88,4 +95,4 @@ def on_load(url, body):
     return None
 
 def extra_css(url):
-    return generate_css()
+    return get_dynamic_css()
