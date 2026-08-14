@@ -1,13 +1,36 @@
 import sys
 
+import os
+import re
+
 def get_gtk_color(name, default):
     try:
+        theme_name = "Breeze"
+        settings_path = os.path.expanduser("~/.config/gtk-3.0/settings.ini")
+        if os.path.exists(settings_path):
+            with open(settings_path, "r") as f:
+                match = re.search(r"gtk-theme-name=(.+)", f.read())
+                if match:
+                    theme_name = match.group(1).strip()
+        
+        colors_path = os.path.expanduser("~/.config/gtk-3.0/colors.css")
+        if os.path.exists(colors_path):
+            with open(colors_path, "r") as f:
+                content = f.read()
+                suffix = theme_name.lower().replace("-", "")
+                match = re.search(fr"@define-color\s+{name}(_{suffix})?\s+(#[0-9a-fA-F]+);", content)
+                if match:
+                    hex_val = match.group(2).lstrip('#')
+                    r, g, b = tuple(int(hex_val[i:i+2], 16) for i in (0, 2, 4))
+                    return f"rgb({r}, {g}, {b})"
+                    
         import gi
         gi.require_version('Gtk', '3.0')
         from gi.repository import Gtk
         success, color = Gtk.StyleContext().lookup_color(name)
         if success:
             return f"rgb({int(color.red*255)}, {int(color.green*255)}, {int(color.blue*255)})"
+            
     except Exception:
         pass
     return default
