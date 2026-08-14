@@ -48,6 +48,7 @@ The catalog URL in `index.json` is what the browser's ToeHub fetches; keep
 | session-keeper | Remembers and restores open tabs via `session://`, can forget |
 | toe-latin | Renders every page in Pig Latin |
 | keyboard-ninja | Vim-style `j`/`k`/`h`/`l`/`d`/`u`/`gg`/`G` scrolling |
+| pseudo-toe | Pseudo-site hub: turns GitHub repo links into lightweight scrollable sites via `gh://` |
 
 ## Installing manually
 
