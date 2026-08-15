@@ -133,6 +133,17 @@
         "toe.py",
         "manual.md"
       ]
+    },
+    {
+      "name": "fat-dog-takeover",
+      "version": "0.1.0",
+      "description": "Replaces every image on every page with the iconic Fat Dog, stretched to fill whatever shape the original occupied. Toggle with the DOG button; pick a stretch mode in the config.",
+      "entry": "toe.py",
+      "files": [
+        "toe.json",
+        "toe.py",
+        "manual.md"
+      ]
     }
   ]
 }
