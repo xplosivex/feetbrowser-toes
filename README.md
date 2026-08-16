@@ -50,6 +50,7 @@ The catalog URL in `index.json` is what the browser's ToeHub fetches; keep
 | keyboard-ninja | Vim-style `j`/`k`/`h`/`l`/`d`/`u`/`gg`/`G` scrolling |
 | pseudo-toe | Pseudo-site hub: turns GitHub repo links into lightweight scrollable sites via `gh://` |
 | gtk-theme | GTK Adwaita styling for forms, buttons, and scrollbars (Linux only) |
+| fat-dog-takeover | Replaces every image on every page with the iconic Fat Dog, stretched to fill whatever shape the original occupied. Toggle with the DOG button; pick a stretch mode in the config |
 
 ## Installing manually
 
